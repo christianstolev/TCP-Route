@@ -13,12 +13,17 @@ class Router
         }
     end
 
-    def route_matches(org_route)
+    def route_matches(route)
+
+        org_route = route.resource 
         route_s = org_route.split('/')[1..]
         ret_val = false
         ROUTE_MAP.each do |r| 
             mapped_route = r[1][:ROUTE].split('/')[1..]
-            if mapped_route.length == route_s.length then
+            if mapped_route == nil || route_s == nil then
+                return false
+            end
+            if mapped_route.length == route_s.length && route.method == r[1][:METHOD] then
                 print("match ", mapped_route, "\n")
                 anomaly_found = false
                 mapped_route.map.with_index do | x, i |
@@ -63,10 +68,10 @@ class Router
     end
 
     def match_route(route)
-        if route_matches(route.resource) then
+        
+        if route_matches(route) then
             bl, args = extract_parameters(route.resource)
             bl.call(*args)
-            #ROUTE_MAP[route.resource][:BLOCK].call()
         end
         
     end

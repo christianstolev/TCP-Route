@@ -1,6 +1,7 @@
 require 'socket'
 require_relative '../lib/request'
 require_relative '../lib/router'
+require_relative '../lib/response'
 class HTTPServer
 
     def initialize(port)
@@ -11,37 +12,37 @@ class HTTPServer
         server = TCPServer.new(@port)
         puts "Listening on #{@port}"
         router = Router.new
-        router.add_route('/hello/:id/:id2', :GET) do | id, i |
-            "Sum: #{id.to_i + i.to_i}" 
+
+        router.add_route('/add/:id/:id2', :GET) do | num1, num2 |
+            "Sum: #{num1.to_i + num2.to_i}" 
         end
-        router.add_route('/hello', :GET) do | id, i |
-            "Lol" 
+        router.add_route('/sub/:id/:id2', :GET) do | num1, num2 |
+            "Sum: #{num1.to_i - num2.to_i}" 
         end
+        router.add_route('/div/:id/:id2', :GET) do | num1, num2 |
+            "Sum: #{num1.to_i / num2.to_i}" 
+        end
+        router.add_route('/mul/:id/:id2', :GET) do | num1, num2 |
+            "Sum: #{num1.to_i * num2.to_i}" 
+        end
+
         while session = server.accept
             data = ""
             while line = session.gets and line !~ /^\s*$/
                 data += line
             end
-            puts "RECEIVED REQUEST"
-            puts "-" * 40
-            #puts data
-            puts "-" * 40 
 
             request = Request.new(data)
             
-            
             data = router.match_route(request)
-            #Sen kolla om resursen (filen finns)
+            
+            res = Response.new(session)
+            res.set_version(1.1)
+            res.set_code(200)
+            res.set_content_type("text/html")
+            res.set_response(data)
 
-
-            # Nedanstående bör göras i er Response-klass
-            html = "<h1>Hello, World!</h1>"
-
-            session.print "HTTP/1.1 200\r\n"
-            session.print "Content-Type: text/html\r\n"
-            session.print "\r\n"
-            session.print data
-            session.close
+            res.done()
         end
     end
 end
