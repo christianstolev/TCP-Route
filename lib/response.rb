@@ -1,3 +1,6 @@
+
+  
+
 class Response 
     TCP_SESSION = nil
     HTTP_VERSION = nil
