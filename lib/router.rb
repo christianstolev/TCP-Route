@@ -1,3 +1,78 @@
+require 'erb'
+
+def string_is_file?(string)
+    !File.extname("dir" + string).empty?
+end
+
+def is_erb_file?(string)
+    File.extname(string) == ".erb"
+end
+
+def ERB_FILE(file_name)
+    if is_erb_file?(file_name) then
+        erb_template = ERB.new(File.read("dir/" + file_name))
+        output = erb_template.result(binding)
+        return output
+    end
+end
+class RouterResponse
+    def initialize
+        @status_code = nil
+        @mime_type = nil
+        @response = nil
+    end
+
+    def status_code
+        @status_code
+    end
+
+    def response
+        @response
+    end
+
+    def mime_type
+        @mime_type
+    end
+    
+    def content_length
+        @response.length
+    end
+
+    # Setter for status_code
+    def status_code=(status_code)
+        @status_code = status_code
+    end
+
+    def content_length=(content_length)
+        @content_length = content_length
+    end
+
+    # Setter for mime_type
+    def mime_type=(mime_type)
+        @mime_type = mime_type
+    end
+
+    # Setter for response
+    def response=(response)
+        if @mime_type.nil? && response.length < 100 && string_is_file?(response) && File.exist?("dir/" + response) then
+            @mime_type = MIME::Types.type_for(response).first
+            p "is erb file?"
+            if is_erb_file?(response) then
+                erb_template = ERB.new(File.read("dir/" + response))
+                output = erb_template.result(binding)
+                @response = output
+                p output
+                @mime_type = 'text/html'
+            else
+                @response = File.read("dir/" + response)
+            end
+        else
+            @response = response
+        end
+    end
+
+end
+
 class Router
     ROUTE_MAP = {}
 
@@ -66,9 +141,24 @@ class Router
         r_map = route_matches(route)
         if r_map then
             bl, args = extract_parameters(r_map, route.resource)
-            return 200, bl.call(*args)
+            rs = RouterResponse.new()
+            bl.call(rs, *args)
+            return rs
         else
-            return 404, "<h1>404 not found!</h1>"
+            if string_is_file?("dir" + route.resource) && File.exist?("dir" + route.resource) then
+                rs = RouterResponse.new()
+                rs.status_code = 200
+                rs.response = File.binread("dir" + route.resource)
+                rs.mime_type = MIME::Types.type_for(route.resource).first
+                p rs.mime_type
+                return rs
+            else
+                rs = RouterResponse.new()
+                rs.status_code = 404
+                rs.response = "<h1>404 Not Found</h1>"
+                rs.mime_type = "text/html"
+                return rs
+            end
         end
         
     end

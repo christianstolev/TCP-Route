@@ -6,6 +6,11 @@ GEM
     builder (3.3.0)
     json (2.8.2)
     language_server-protocol (3.17.0.3)
+    logger (1.6.2)
+    mime-types (3.6.0)
+      logger
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2024.1105)
     minitest (5.25.1)
     minitest-reporters (1.7.1)
       ansi
@@ -40,6 +45,7 @@ PLATFORMS
   x64-unknown
 
 DEPENDENCIES
+  mime-types (~> 3.1)
   minitest (~> 5.25)
   minitest-reporters (~> 1.7)
   rubocop
