@@ -7,44 +7,36 @@ require 'mime/types'
 
 class HTTPServer
 
+    # Initializes the HTTPServer with the specified port.
+    # @param port [Integer] The port to listen on.
     def initialize(port)
         @port = port
     end
 
+    # Starts the HTTP server, sets up routes, and listens for incoming requests.
     def start
         server = TCPServer.new(@port)
         puts "Listening on #{@port}"
         router = Router.new
 
-        #router.add_route('/add/:id/:id2', :GET) do | num1, num2 |
-        #    "Sum: #{num1.to_i + num2.to_i}" 
-        #end
-        #router.add_route('/sub/:id/:id2', :GET) do | num1, num2 |
-        #    "#{num1} - #{num2} = #{num1.to_i - num2.to_i}" 
-        #end
-        #router.add_route('/div/:id/:id2', :GET) do | num1, num2 |
-        #    "Sum: #{num1.to_i / num2.to_i}" 
-        #end
-        #router.add_route('/mul/:id/:id2', :GET) do | num1, num2 |
-        #    "Sum: #{num1.to_i * num2.to_i}" 
-        #end
-
-        router.add_route('/test', :GET) do | r |
+        # Define routes here
+        router.add_route('/test', :GET) do |r|
             r.status_code = 200
             r.response = "Hello World"
             r.mime_type = 'text/plain'
         end
 
-        router.add_route('/hello', :GET) do | r |
+        router.add_route('/hello', :GET) do |r|
             r.status_code = 200
-            r.response = "test.html"
-        end
-        router.add_route('/doge', :GET) do | r |
-            r.status_code = 200
-            r.response = "image.png"
+            r.response = "page.html"
         end
 
-        router.add_route('/sinatra', :GET) do | r |
+        router.add_route('/zesty', :GET) do |r|
+            r.status_code = 200
+            r.response = "Sweden_Passport_2022-EXAMPLE.jpg"
+        end
+
+        router.add_route('/sinatra', :GET) do |r|
             r.status_code = 200
             @message = "Hello, thideqds is a dynamic message!"
             r.response = ERB_FILE("ruby.erb")
@@ -61,7 +53,6 @@ class HTTPServer
             
             rs = router.match_route(request)
             print("Rs: #{rs}\n")
-            #print("Code: #{code} Data: #{data}\n")
             res = Response.new(session)
             res.set_version(1.1)
             res.set_code(rs.status_code)

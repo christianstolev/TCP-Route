@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption Method Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Encryption Method Comparison</h1>
+        <p>Compare encryption methods based on time and output length</p>
+
+        <form action="/" method="post">
+            <label for="inputText">Text to Encrypt:</label>
+            <input type="text" id="message" value="message" placeholder="Enter text to encrypt">
+
+            <input type="submit" value="dewds">
+
+        </form>
+        <div id="results">
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Mock encryption functions
+        function mockEncrypt(method, text, key) {
+            const baseTime = Math.random() * 100 + 50; // Random time between 50-150ms
+            const baseLength = text.length * 1.5; // Assume encrypted text is 1.5x longer
+
+            const factors = {
+                AES: {
+                    time: 1,
+                    length: 1
+                },
+                ECC: {
+                    time: 1.2,
+                    length: 0.8
+                },
+                DES: {
+                    time: 0.8,
+                    length: 1.2
+                },
+                RSA: {
+                    time: 1.5,
+                    length: 2
+                },
+            };
+
+            const factor = factors[method];
+
+            return {
+                time: baseTime * factor.time,
+                length: Math.round(baseLength * factor.length),
+            };
+        }
+
+        let chart;
+
+        function handleEncrypt() {
+            const inputText = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!inputText || !key) return;
+
+            const methods = ["AES", "ECC", "DES", "RSA"];
+            const results = methods.map(method => {
+                const {
+                    time,
+                    length
+                } = mockEncrypt(method, inputText, key);
+                return {
+                    method,
+                    time: parseFloat(time.toFixed(2)),
+                    length
+                };
+            });
+
+            updateChart(results);
+        }
+
+        function updateChart(results) {
+            const ctx = document.getElementById('chart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: results.map(r => r.method),
+                    datasets: [{
+                            label: 'Time (ms)',
+                            data: results.map(r => r.time),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1,
+                            yAxisID: 'y-axis-1',
+                        },
+                        {
+                            label: 'Length',
+                            data: results.map(r => r.length),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 1,
+                            yAxisID: 'y-axis-2',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        'y-axis-1': {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Time (ms)'
+                            }
+                        },
+                        'y-axis-2': {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Length'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
