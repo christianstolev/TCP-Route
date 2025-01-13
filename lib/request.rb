@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 # Class used to parse and represent HTTP requests
 class Request
   attr_reader :method, :resource, :version, :headers, :params, :body
@@ -13,11 +14,18 @@ class Request
 
   # Initializes the Request object by parsing the given request string.
   # @param request_string [String] The raw HTTP request string.
-  def initialize(request_string)
+  # @param possible_body [String] Possible body for POST support
+  def initialize(request_string, possible_body)
     lines = request_string.split("\r\n")
     parse_request_line(lines[0])
     @headers = parse_headers(lines)
-    @body = parse_body(lines)
+    @body = if 'application/x-www-form-urlencoded' == @headers['Content-Type']
+              parse_params(possible_body)
+            elsif 'application/json' == @headers['Content-Type']
+              JSON.parse(possible_body)
+            else
+              possible_body
+            end
   end
 
   private
